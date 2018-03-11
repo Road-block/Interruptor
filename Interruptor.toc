@@ -1,0 +1,34 @@
+## Interface: 11200
+## Version: 1.0
+## Title: Interruptor
+## Notes: Interrupt announce for |cff68ccefMage|r, |cffffffffPriest|r, |cfffff468Rogue|r, |cff2359ffShaman|r, |cff9382c9Warlock|r, |cffc69b6dWarrior|r
+## Author: Roadblock
+## X-Website: https://github.com/Road-block
+## X-Category: Combat
+## OptionalDeps: Ace2, FuBar, FuBarPlugin-2.0, ParserLib, Deformat, TabletLib, DewdropLib, CompostLib, GratuityLib, Babble-Spell-2.2, SpellStatusLib, SpellCacheLib
+## SavedVariables: InterruptorDB
+
+# Libs Core
+Libs\AceLibrary\AceLibrary.lua
+Libs\AceOO-2.0\AceOO-2.0.lua
+Libs\AceConsole-2.0\AceConsole-2.0.lua
+Libs\AceEvent-2.0\AceEvent-2.0.lua
+Libs\AceDebug-2.0\AceDebug-2.0.lua
+Libs\AceDB-2.0\AceDB-2.0.lua
+Libs\AceAddon-2.0\AceAddon-2.0.lua
+Libs\AceHook-2.1\AceHook-2.1.lua
+Libs\AceLocale-2.2\AceLocale-2.2.lua
+# Libs Extra
+Libs\Babble-Spell-2.2\Babble-Spell-2.2.lua
+Libs\Compost-2.0\Compost-2.0.lua
+Libs\Deformat-2.0\Deformat-2.0.lua
+Libs\Gratuity-2.0\Gratuity-2.0.lua
+Libs\Dewdrop-2.0\Dewdrop-2.0.lua
+Libs\Tablet-2.0\Tablet-2.0.lua
+Libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
+Libs\SpellCache-1.0\SpellCache-1.0.lua
+Libs\SpellStatus-1.0\SpellStatus-1.0.lua
+Libs\ParserLib\ParserLib.lua
+# Main files
+localization.lua
+core.lua
