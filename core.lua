@@ -7,9 +7,7 @@ local SS = AceLibrary("SpellStatus-1.0")
 local parser = ParserLib:GetInstance("1.1")
 local gratuity = AceLibrary("Gratuity-2.0")
 local L = AceLibrary("AceLocale-2.2"):new("Interruptor")
---[[
-Haadnem's Spell Lock was resisted by Anachronos.
-]]
+
 Interruptor._class, Interruptor._eClass = UnitClass("player")
 Interruptor._pName = (UnitName("player"))
 
@@ -95,7 +93,7 @@ local options  = {
       usage = "<channel>",
       disabled = function() return not Interruptor.db.profile.Active end,
       order = 3,
-      validate = {[SAY]="SAY",[PARTY]="PARTY",[RAID]="RAID"},
+      validate = {["SAY"]=SAY,["PARTY"]=PARTY,["RAID"]=RAID},
     },
     Announce = {
       name = L["Announce"],
