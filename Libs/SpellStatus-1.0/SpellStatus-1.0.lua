@@ -514,18 +514,6 @@ function SpellStatus:UseAction(slotId, checkCursor, onSelf)
 	self:LevelDebug(1, "<<<< UseAction", slotId, checkCursor, onSelf)
 end
 
-function SpellStatus:CastPetAction(slotId, onUnit)
-	self:LevelDebug(1, ">>>> CastPetAction", slotId, onUnit)
-	gratuity:SetAction(slotId)
-	local sId, sName, sRank, sFullName = GetGratuitySpellData(self, slotId)
-	if (sName) then
-		CastOriginal(self, "CastPetAction", slotId, onUnit, nil, sId, sName, sRank, sFullName)
-	else
-		self.hooks["CastPetAction"](slotId, onUnit)
-	end
-	self:LevelDebug(1, "<<<< CastPetAction", slotId, onUnit)
-end
-
 function SpellStatus:CastShapeshiftForm(index)
 	self:LevelDebug(2, ">>>> CastShapeshiftForm", index)
 
