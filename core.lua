@@ -4,7 +4,7 @@ local T  = AceLibrary("Tablet-2.0")
 local BS = AceLibrary("Babble-Spell-2.2")
 local SC = AceLibrary("SpellCache-1.0")
 local SS = AceLibrary("SpellStatus-1.0")
-local parser = ParserLib:GetInstance("1.1")
+--local parser = ParserLib:GetInstance("1.1")
 local gratuity = AceLibrary("Gratuity-2.0")
 local L = AceLibrary("AceLocale-2.2"):new("Interruptor")
 
@@ -15,6 +15,7 @@ local groupTypeDesc = {
   [1] = L["Party Only"],
   [2] = L["Raid Only"],
   [3] = L["Party/Raid"],
+  [4] = L["Always"],
 }
 local party,raid = {},{}
 do
@@ -28,23 +29,24 @@ end
 
 local interrupts = {
   ["ROGUE"] = {
-    ["Kick"] = BS["Kick"];
+    ["Kick"] = {"hit", 1}
   },
   ["WARRIOR"] = {
-    ["Shield Bash"] = BS["Shield Bash"];
-    ["Pummel"] = BS["Pummel"];
+    ["Shield Bash"] = {"hit",1},
+    ["Pummel"] = {"hit",1},
   },
   ["SHAMAN"] = {
-    ["Earth Shock"] = BS["Earth Shock"];
+    ["Earth Shock"] = {"hit",1},;
   },
   ["MAGE"] = {
-    ["Counterspell"] = BS["Counterspell"];
+    ["Counterspell"] = {"interrupt",0},
+--	["Polymorph"] = BS["Polymorph"];
   },
   ["PRIEST"] = {
-    ["Silence"] = BS["Silence"];
+    ["Silence"] = {"debuff",1},
   },
   ["WARLOCK"] = {
-    ["Spell Lock"] = BS["Spell Lock"];
+    ["Spell Lock"] = {"hit",1},
   },
 }
 
@@ -73,13 +75,13 @@ local options  = {
     GroupType =
     {
       name = L["Group Type"],
-      desc = L["1 = Party only, 2 = Raid only, 3 = Both"],
+      desc = L["1 = Party only, 2 = Raid only, 3 = Both, 4 = Always"],
       type = "range",
       get  = "GetGroupTypeOption",
       set  = "SetGroupTypeOption",
       disabled = function() return not Interruptor.db.profile.Active end,
       min = 1,
-      max = 3,
+      max = 4,
       step = 1,
       order = 2
     },
@@ -156,7 +158,7 @@ function Interruptor:OnClick()
     return self:SetGroupTypeOption(2)
   end
   local newType = groupType + 1
-  if newType > 3 then
+  if newType > 4 then
     newType = 1
   end
   self:Print(groupTypeDesc[newType])
@@ -177,6 +179,9 @@ function Interruptor:OnInitialize() -- ADDON_LOADED (1)
     self:OnDisable()
     DisableAddOn("Interruptor")
   end
+  
+  self.parser = ParserLib:GetInstance("1.1")
+  
 end
 
 function Interruptor:IconUpdate()
@@ -191,6 +196,10 @@ function Interruptor:OnEnable() -- PLAYER_LOGIN (2)
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   self:IconUpdate()
   self:UpdateTooltip()
+  
+  self.parser:RegisterEvent("Interruptor", "CHAT_MSG_SPELL_SELF_DAMAGE",           		function (event, info) self:SPELL_CAST(event, info) end)
+   self.parser:RegisterEvent("Interruptor", "CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE",	function (event, info) self:SPELL_CAST(event, info) end)
+  
 end
 
 function Interruptor:OnDisable()
@@ -217,11 +226,11 @@ function Interruptor:SpellCache_Updated()
 end
 
 function Interruptor:Interrupts()
-  for spell, locSpell in pairs(interrupts[self._eClass]) do
-    local spellName = SC:GetSpellData(locSpell)
+  for spell, k in pairs(interrupts[self._eClass]) do
+    local spellName = SC:GetSpellData(BS[spell])
     if (spellName) then
       self._interrupts = self._interrupts or {}
-      self._interrupts[locSpell] = spell
+      self._interrupts[BS[spell]] = spell
     end
   end
   if not (self.db.profile.Active) then return end
@@ -241,6 +250,28 @@ function Interruptor:Interrupts()
   end
 end
 
+function Interruptor:SPELL_CAST(event, info)
+--  LPrintTable({event,info.type, info.skill}," ",5)
+  
+  if (info.type == "interrupt") then
+	self:Announce(self.db.profile.Announce .. " - Interupted: "..info.skill)
+	return
+  end
+  for spell, k in pairs(interrupts[self._eClass]) do
+	if (info.type == k[1] and spell == info.skill) then
+	--	self:Announce()
+    --if (spell == info.skill and not (info.type == "hit" or info.type == "interrupt")) then
+    --   
+	--   LPrintTable({event,info.type, info.skill, spell}," ",5)
+	elseif (spell == info.skill) then
+	   self:Announce(info.skill .. " - Failed!!!!")
+    end
+  end
+
+
+end
+
+
 function Interruptor:CastPetAction(slotId, onUnit)
   local sId, sName, sRank, sFullName = self:GetSpellInfo(slotId, "SetPetAction")
   if (sName) and self._interrupts[sName] and (GetPetActionsUsable()) then
@@ -254,7 +285,7 @@ end
 
 function Interruptor:Casted(sId, sName, sRank, sFullName, sCastTime)
   if not self._interrupts[sName] then return end
-  self:Announce()
+  self:Announce(self.db.profile.Announce .. " - " .. sName)
 end
 
 function Interruptor:GetSpellInfo(slotId, methodName)
@@ -365,21 +396,19 @@ function Interruptor:Announce(msg)
   if not self.db.profile.Active then return end
   local optGroup = self.db.profile.GroupType
   local getGroup = self:GetGroupType()
-  if getGroup == 0 then return end
   local optChannel, channel = self.db.profile.Channel
-  if optChannel == "RAID" and getGroup == 1 then
+  if getGroup == 1 and optChannel == "RAID" then
     channel = "PARTY"
+  elseif getGroup == 0 and (optChannel == "RAID" or optChannel == "PARTY") then
+	channel = "SAY"
   else
     channel = optChannel
   end
   if (channel) then
-    SendChatMessage(self.db.profile.Announce,channel)
+    SendChatMessage(msg,channel)
   end
   local whispertarget = self.db.profile.Whisper
   if string.lower(whispertarget) ~= string.lower(NONE) and self:inGroup(whispertarget) then
-    SendChatMessage(self.db.profile.Announce, "WHISPER", nil, whispertarget)
-  end
-  if (msg) then
-    self:Print(msg) -- for debug
+    SendChatMessage(msg, "WHISPER", nil, whispertarget)
   end
 end
