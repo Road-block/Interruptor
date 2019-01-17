@@ -10,7 +10,7 @@ Dependencies: AceLibrary, AceDebug-2.0, AceEvent-2.0, AceHook-2.1, Deformat-2.0,
 ]]
 
 local MAJOR_VERSION = "SpellStatus-1.0"
-local MINOR_VERSION = "$Revision: 14589 $"
+local MINOR_VERSION = "$Revision: 14590 $"
 
 if (not AceLibrary) then 
 	error(MAJOR_VERSION .. " requires AceLibrary.") 

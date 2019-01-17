@@ -1,6 +1,6 @@
 --[[
 Name: FuBarPlugin-2.0
-Revision: $Rev: 15281 $
+Revision: $Rev: 16321 $
 Author: Cameron Kenneth Knight (ckknight@gmail.com)
 Website: http://wiki.wowace.com/index.php/FuBarPlugin-2.0
 Documentation: http://wiki.wowace.com/index.php/FuBarPlugin-2.0
@@ -11,7 +11,7 @@ Dependencies: AceLibrary, AceOO-2.0, AceEvent-2.0, Tablet-2.0, Dewdrop-2.0
 
 local MAJOR_VERSION = "FuBarPlugin-2.0"
 local MINIMAPCONTAINER_MAJOR_VERSION = "FuBarPlugin-MinimapContainer-2.0"
-local MINOR_VERSION = "$Revision: 15281 $"
+local MINOR_VERSION = "$Revision: 16321 $"
 
 -- This ensures the code is only executed if the libary doesn't already exist, or is a newer version
 if not AceLibrary then error(MAJOR_VERSION .. " requires AceLibrary.") end
@@ -35,7 +35,7 @@ local SHOW_COLORED_TEXT_DESC = "Allow the plugin to color its text."
 local DETACH_TOOLTIP = "Detach tooltip"
 local DETACH_TOOLTIP_DESC = "Detach the tooltip from the panel."
 local LOCK_TOOLTIP = "Lock tooltip"
-local LOCK_TOOLTIP_DESC = "Lock the tooltips position."
+local LOCK_TOOLTIP_DESC = "Lock the tooltips position. When the tooltip is locked, you must use Alt to access it with your mouse."
 local POSITION = "Position"
 local POSITION_DESC = "Position the plugin on the panel."
 local POSITION_LEFT = "Left"
@@ -43,11 +43,32 @@ local POSITION_RIGHT = "Right"
 local POSITION_CENTER = "Center"
 local ATTACH_TO_MINIMAP = "Attach to minimap"
 local ATTACH_TO_MINIMAP_DESC = "Attach the plugin to the minimap instead of the panel."
-local HIDE_FUBAR_PLUGIN = "Hide FuBar plugin"
+local HIDE_FUBAR_PLUGIN = "Hide plugin"
 local HIDE_FUBAR_PLUGIN_CMD = "Hidden"
-local HIDE_FUBAR_PLUGIN_DESC = "Hide the plugin from the panel."
+local HIDE_FUBAR_PLUGIN_DESC = "Hide the plugin from the panel or minimap, leaving the addon running."
 
-if GetLocale() == "koKR" then
+if GetLocale() == "ruRU" then
+	SHOW_ICON = "Показать иконку"
+	SHOW_ICON_DESC = "Показать иконку плагина на панели."
+	SHOW_TEXT = "Показать текст"
+	SHOW_TEXT_DESC = "Показать текст плагина на панели."
+	SHOW_COLORED_TEXT = "Показать цветной текст"
+	SHOW_COLORED_TEXT_DESC = "Всегда окрашивать плагину этот текст."
+	DETACH_TOOLTIP = "Отделить меню"
+	DETACH_TOOLTIP_DESC = "Отделить окно меню от панели."
+	LOCK_TOOLTIP = "Закрепить меню"
+	LOCK_TOOLTIP_DESC = "Закрепить окно меню. Когда меню закрепленно, вы можете использовать Alt+ЛКМ."
+	POSITION = "Положение"
+	POSITION_DESC = "Положение плагина на панели."
+	POSITION_LEFT = "Слева"
+	POSITION_RIGHT = "Справа"
+	POSITION_CENTER = "По центру"
+	ATTACH_TO_MINIMAP = "Прикрепить к мини-карте"
+	ATTACH_TO_MINIMAP_DESC = "Прикрепить плагин к мини-карте."
+	HIDE_FUBAR_PLUGIN = "Скрыть плагин"
+	HIDE_FUBAR_PLUGIN_CMD = "Hidden"
+	HIDE_FUBAR_PLUGIN_DESC = "Скрыть плагин с панели или мини-карты."
+elseif GetLocale() == "koKR" then
 	SHOW_ICON = "아이콘 표시"
 	SHOW_ICON_DESC = "패널에 플러그인 아이콘을 표시합니다."
 	SHOW_TEXT = "텍스트 표시"
@@ -540,10 +561,10 @@ function FuBarPlugin:IsIconShown()
 		return true
 	elseif not self.db then
 		return true
-	elseif self.db.profile.showIcon == nil then
+	elseif self.db and self.db.profile.showIcon == nil then
 		return true
 	else
-		return (self.db.profile.showIcon == 1 or self.db.profile.showIcon == true) and true or false
+		return (self.db and (self.db.profile.showIcon == 1 or self.db.profile.showIcon == true)) and true or false
 	end
 end
 
@@ -594,10 +615,10 @@ function FuBarPlugin:IsTextShown()
 		return true
 	elseif not self.db then
 		return true
-	elseif self.db.profile.showText == nil then
+	elseif self.db and self.db.profile.showText == nil then
 		return true
 	else
-		return (self.db.profile.showText == 1 or self.db.profile.showText == true) and true or false
+		return (self.db and (self.db.profile.showText == 1 or self.db.profile.showText == true)) and true or false
 	end
 end
 
@@ -650,6 +671,7 @@ function FuBarPlugin:ToggleTooltipDetached()
 	else
 		Tablet:Detach(self.frame)
 	end
+	if Dewdrop then Dewdrop:Close() end
 end
 
 function FuBarPlugin:DetachTooltip()
@@ -976,7 +998,7 @@ function FuBarPlugin.OnEmbedEnable(FuBarPlugin, self)
 	end
 	self:CheckWidth(true)
 
-	if not self.hideWithoutStandby or not self.db.profile.hidden then
+	if not self.hideWithoutStandby or (self.db and not self.db.profile.hidden) then
 		if FuBarPlugin.enabledPlugins[self] then
 			CheckShow(self, self.panelIdTmp)
 		else
