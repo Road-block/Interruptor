@@ -1,7 +1,7 @@
 local L = AceLibrary("AceLocale-2.2"):new("Interruptor")
 
 L:RegisterTranslations("enUS", function() return {
-  ["1 = Party only, 2 = Raid only, 3 = Both, 4 = Always"] = true,
+  ["1 = Party only, 2 = Raid only, 3 = Both"] = true,
   [">>Interrupt Used!<<"] = true,
   ["Activate/Suspend 'Interruptor'"] = true,
   ["Active"] = true,
@@ -16,7 +16,6 @@ L:RegisterTranslations("enUS", function() return {
   ["Party Only"] = true,
   ["Party/Raid"] = true,
   ["Raid Only"] = true,
-  ["Always"] = true,
   ["Suspended"] = true,
   ["Whisper a player"] = true,
   ["Whisper"] = true,

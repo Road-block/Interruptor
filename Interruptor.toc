@@ -1,9 +1,8 @@
 ## Interface: 11200
-## Version: 1.2
+## Version: 1.1
 ## Title: Interruptor
 ## Notes: Interrupt announce for |cff68ccefMage|r, |cffffffffPriest|r, |cfffff468Rogue|r, |cff2359ffShaman|r, |cff9382c9Warlock|r, |cffc69b6dWarrior|r
 ## Author: Roadblock
-## Upgrade: @laytya
 ## X-Website: https://github.com/Road-block/Interruptor
 ## X-Credits: Qcat (zhCN)
 ## X-Category: Combat
